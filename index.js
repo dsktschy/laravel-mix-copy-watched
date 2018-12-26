@@ -48,7 +48,6 @@ class CopyWatched {
     console.log(`Copying ${from} to ${to}`)
   }
   _removeFile (_path) {
-    const from = path.resolve(_path)
     const to = this._createDestinationFilePath(_path)
     fs.remove(to, err => { if (err) throw err })
     console.log(`Removing ${to}`)
@@ -60,7 +59,6 @@ class CopyWatched {
     console.log(`Copying ${from} to ${to}`)
   }
   _removeDir (_path) {
-    const from = path.resolve(_path)
     const to = this._createDestinationDirPath(_path)
     fs.remove(to, err => { if (err) throw err })
     console.log(`Removing ${to}`)
