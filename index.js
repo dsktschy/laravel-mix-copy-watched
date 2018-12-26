@@ -31,7 +31,7 @@ class CopyWatched {
       glob(this.from, (err, paths) => {
         if (err) throw err
         for (let _path of paths) {
-          const fullPath = path.join(__dirname, _path)
+          const fullPath = path.resolve(_path)
           fs.stat(fullPath, (_err, stats) => {
             if (_err) throw _err
             this[stats.isFile() ? '_copyFile' : '_copyDir'](_path)
@@ -41,25 +41,25 @@ class CopyWatched {
     }
   }
   _copyFile (_path) {
-    const from = path.join(__dirname, _path)
+    const from = path.resolve(_path)
     const to = this._createDestinationFilePath(_path)
     fs.copy(from, to, err => { if (err) throw err })
     console.log(`\nCopying ${from} to ${to}`)
   }
   _removeFile (_path) {
-    const from = path.join(__dirname, _path)
+    const from = path.resolve(_path)
     const to = this._createDestinationFilePath(_path)
     fs.remove(to, err => { if (err) throw err })
     console.log(`\nRemoving ${to}`)
   }
   _copyDir (_path) {
-    const from = path.join(__dirname, _path)
+    const from = path.resolve(_path)
     const to = this._createDestinationDirPath(_path)
     fs.copy(from, to, err => { if (err) throw err })
     console.log(`\nCopying ${from} to ${to}`)
   }
   _removeDir (_path) {
-    const from = path.join(__dirname, _path)
+    const from = path.resolve(_path)
     const to = this._createDestinationDirPath(_path)
     fs.remove(to, err => { if (err) throw err })
     console.log(`\nRemoving ${to}`)
@@ -93,21 +93,21 @@ class CopyWatched {
     let to = ''
     if (path.extname(_path)) {
       if (!this.to.endsWith('/') && path.extname(this.to)) {
-        to = path.join(__dirname, this.to)
+        to = path.resolve(this.to)
       } else {
         if (this.options.base) {
           const base = this.options.base.endsWith('/')
             ? this.options.base
             : this.options.base.slice(0, -1)
-          to = path.join(__dirname, this.to, _path.split(base).pop())
+          to = path.resolve(this.to, _path.split(base).pop())
         } else {
-          to = path.join(__dirname, this.to, path.basename(_path))
+          to = path.resolve(this.to, path.basename(_path))
         }
       }
     } else {
       const toSlashless =
         this.to.endsWith('/') ? this.to.slice(0, -1) : this.to
-      to = path.join(__dirname, toSlashless)
+      to = path.resolve(toSlashless)
     }
     return to
   }
@@ -162,12 +162,12 @@ class CopyWatched {
       const base = this.options.base.endsWith('/')
         ? this.options.base
         : this.options.base.slice(0, -1)
-      to = path.join(__dirname, this.to, _path.split(base).pop())
+      to = path.resolve(this.to, _path.split(base).pop())
     } else {
       if (path.extname(_pathSlashless) && !path.extname(toSlashless)) {
-        to = path.join(__dirname, this.to, path.basename(_path))
+        to = path.resolve(this.to, path.basename(_path))
       } else {
-        to = path.join(__dirname, this.to)
+        to = path.resolve(this.to)
       }
     }
     return to
