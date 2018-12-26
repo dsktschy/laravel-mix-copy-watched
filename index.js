@@ -30,6 +30,7 @@ class CopyWatched {
     } else {
       glob(this.from, (err, paths) => {
         if (err) throw err
+        console.log('\n')
         for (let _path of paths) {
           const fullPath = path.resolve(_path)
           fs.stat(fullPath, (_err, stats) => {
@@ -44,25 +45,25 @@ class CopyWatched {
     const from = path.resolve(_path)
     const to = this._createDestinationFilePath(_path)
     fs.copy(from, to, err => { if (err) throw err })
-    console.log(`\nCopying ${from} to ${to}`)
+    console.log(`Copying ${from} to ${to}`)
   }
   _removeFile (_path) {
     const from = path.resolve(_path)
     const to = this._createDestinationFilePath(_path)
     fs.remove(to, err => { if (err) throw err })
-    console.log(`\nRemoving ${to}`)
+    console.log(`Removing ${to}`)
   }
   _copyDir (_path) {
     const from = path.resolve(_path)
     const to = this._createDestinationDirPath(_path)
     fs.copy(from, to, err => { if (err) throw err })
-    console.log(`\nCopying ${from} to ${to}`)
+    console.log(`Copying ${from} to ${to}`)
   }
   _removeDir (_path) {
     const from = path.resolve(_path)
     const to = this._createDestinationDirPath(_path)
     fs.remove(to, err => { if (err) throw err })
-    console.log(`\nRemoving ${to}`)
+    console.log(`Removing ${to}`)
   }
   /**
    * e.g. Without base option. This result is imitating original copy task
