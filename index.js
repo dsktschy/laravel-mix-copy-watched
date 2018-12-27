@@ -18,6 +18,9 @@ class CopyWatched {
     this.options = Object.assign({
       base: ''
     }, options)
+    this.options.base = this.options.base.endsWith('/')
+      ? this.options.base.slice(0, -1)
+      : this.options.base
   }
   boot () {
     if (dev) {
@@ -95,10 +98,9 @@ class CopyWatched {
         to = path.resolve(this.to)
       } else {
         if (this.options.base) {
-          const base = this.options.base.endsWith('/')
-            ? this.options.base
-            : this.options.base.slice(0, -1)
-          to = path.resolve(this.to, _path.split(base).pop())
+          let popped = _path.split(this.options.base).pop()
+          popped = popped.startsWith('/') ? popped.slice(1) : popped
+          to = path.resolve(this.to, popped)
         } else {
           to = path.resolve(this.to, path.basename(_path))
         }
@@ -158,10 +160,9 @@ class CopyWatched {
     const toSlashless =
       this.to.endsWith('/') ? this.to.slice(0, -1) : this.to
     if (this.options.base) {
-      const base = this.options.base.endsWith('/')
-        ? this.options.base
-        : this.options.base.slice(0, -1)
-      to = path.resolve(this.to, _path.split(base).pop())
+      let popped = _path.split(this.options.base).pop()
+      popped = popped.startsWith('/') ? popped.slice(1) : popped
+      to = path.resolve(this.to, popped)
     } else {
       if (path.extname(_pathSlashless) && !path.extname(toSlashless)) {
         to = path.resolve(this.to, path.basename(_path))
