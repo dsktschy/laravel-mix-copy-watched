@@ -1,6 +1,6 @@
 {
   "name": "laravel-mix-copy-watched",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Laravel Mix extension to provide copy method that watches for changes, additions and deletions",
   "main": "index.js",
   "scripts": {
