@@ -22,12 +22,6 @@ Mix._copyWatched = {
 }
 
 class CopyWatched {
-  name() {
-    return [
-      'copyWatched',
-      'copyDirectoryWatched'
-    ]
-  }
   register (from, to, options = {}) {
     Mix.addTask(new CopyFilesTask({ from, to, options }))
   }
@@ -39,3 +33,4 @@ class CopyWatched {
 }
 
 mix.extend('copyWatched', new CopyWatched())
+mix.extend('copyDirectoryWatched', new CopyWatched())
