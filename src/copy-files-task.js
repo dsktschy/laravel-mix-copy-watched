@@ -92,36 +92,11 @@ class CopyFilesTask extends Task {
       Mix._copyWatched.callManifestPluginEmitHook()
     }
   }
-  /**
-   * e.g. Without base option. This result is imitating original copy task
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo.ext,  result: dist/foo.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo.ext/, result: dist/foo.ext/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo,      result: dist/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/,     result: dist/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/bar,  result: dist/foo/bar/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/bar/, result: dist/foo/bar/bar.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo.ext,  result: dist/foo.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo.ext/, result: dist/foo.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo,      result: dist/foo
-   * from: src/foo/bar(file),     this.data.to: dist/foo/,     result: dist/foo
-   *
-   * e.g. With base option: { base: 'src/' }
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo.ext,  result: dist/foo.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo.ext/, result: dist/foo.ext/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo,      result: dist/foo/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/,     result: dist/foo/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/bar,  result: dist/foo/bar/foo/bar.ext
-   * from: src/foo/bar.ext(file), this.data.to: dist/foo/bar/, result: dist/foo/bar/foo/bar.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo.ext,  result: dist/foo.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo.ext/, result: dist/foo.ext
-   * from: src/foo/bar(file),     this.data.to: dist/foo,      result: dist/foo
-   * from: src/foo/bar(file),     this.data.to: dist/foo/,     result: dist/foo
-   */
   _createDestinationFilePath (from) {
     let to = ''
     if (path.extname(from)) {
       if (!this.data.to.endsWith('/') && path.extname(this.data.to)) {
-        to = path.join(this.data.to)
+        to = this.data.to
       } else {
         if (this.data.options.base) {
           let popped = from.split(this.data.options.base).pop()
@@ -132,53 +107,11 @@ class CopyFilesTask extends Task {
         }
       }
     } else {
-      const toSlashless =
+      to =
         this.data.to.endsWith('/') ? this.data.to.slice(0, -1) : this.data.to
-      to = path.join(toSlashless)
     }
     return to
   }
-  /**
-   * e.g. Without base option. This result is imitating original copy task
-   * from: src/foo/bar/,          this.data.to: dist/foo.ext,  result: dist/foo.ext/
-   * from: src/foo/bar/,          this.data.to: dist/foo.ext/, result: dist/foo.ext/
-   * from: src/foo/bar/,          this.data.to: dist/foo,      result: dist/foo/
-   * from: src/foo/bar/,          this.data.to: dist/foo/,     result: dist/foo/
-   * from: src/foo/bar/,          this.data.to: dist/foo/bar,  result: dist/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo/bar/, result: dist/foo/bar/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo.ext,  result: dist/foo.ext/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo.ext/, result: dist/foo.ext/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo,      result: dist/foo/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo/,     result: dist/foo/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo.ext,  result: dist/foo.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo.ext/, result: dist/foo.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo,      result: dist/foo/bar.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo/,     result: dist/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo.ext,  result: dist/foo.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo.ext/, result: dist/foo.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo,      result: dist/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo/,     result: dist/foo/bar.ext/
-   *
-   * e.g. With base option: { base: 'src/' }
-   * from: src/foo/bar/,          this.data.to: dist/foo.ext,  result: dist/foo.ext/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo.ext/, result: dist/foo.ext/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo,      result: dist/foo/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo/,     result: dist/foo/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo/bar,  result: dist/foo/bar/foo/bar/
-   * from: src/foo/bar/,          this.data.to: dist/foo/bar/, result: dist/foo/bar/foo/bar/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo.ext,  result: dist/foo.ext/foo/bar/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo.ext/, result: dist/foo.ext/foo/bar/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo,      result: dist/foo/foo/bar/
-   * from: src/foo/bar(dir),      this.data.to: dist/foo/,     result: dist/foo/foo/bar/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo.ext,  result: dist/foo.ext/foo/bar.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo.ext/, result: dist/foo.ext/foo/bar.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo,      result: dist/foo/foo/bar.ext/
-   * from: src/foo/bar.ext/,      this.data.to: dist/foo/,     result: dist/foo/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo.ext,  result: dist/foo.ext/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo.ext/, result: dist/foo.ext/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo,      result: dist/foo/foo/bar.ext/
-   * from: src/foo/bar.ext(dir),  this.data.to: dist/foo/,     result: dist/foo/foo/bar.ext/
-   */
   _createDestinationDirPath (from) {
     let to = ''
     const fromSlashless =
@@ -193,7 +126,7 @@ class CopyFilesTask extends Task {
       if (path.extname(fromSlashless) && !path.extname(toSlashless)) {
         to = path.join(this.data.to, path.basename(from))
       } else {
-        to = path.join(this.data.to)
+        to = this.data.to
       }
     }
     return to
