@@ -17,9 +17,8 @@ Mix._copyWatched = {
     delete Mix.manifest.manifest[original]
   },
   // Enable to trigger hook to rewrite mix-manifest.json in watching
-  callManifestPluginEmitHook () {
-    // Defined in manifest-plugin.js
-  }
+  // Defined in manifest-plugin.js
+  callManifestPluginEmitHook () {}
 }
 
 class CopyWatched {

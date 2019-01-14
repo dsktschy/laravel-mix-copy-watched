@@ -65,6 +65,8 @@ class CopyFilesTask extends Task {
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
     console.log(`Copying ${fromRelative} to ${toRelative}`)
+    // When running, following process is not required
+    // because _copyFile is executed for all files
     if (!this.isBeingWatched) return
     const paths = globby.sync(`${fromRelative}/**/*`)
     for (let _fromRelative of paths) {
