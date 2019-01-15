@@ -37,5 +37,9 @@ mix.copyDirectoryWatched(fromDir, toDir);
 With the base option, it is also possible to keep a hierarchical structure (like Gulp).
 
 ```js
-mix.copyWatched('resources/images/**/*', 'public/images', { base: 'resources/images' });
+mix.copyWatched(
+    'resources/images/**/*',
+    'public/images',
+    { base: 'resources/images' }
+);
 ```
