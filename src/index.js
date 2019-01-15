@@ -6,14 +6,17 @@ const ManifestPlugin = require('./manifest-plugin')
 Mix._copyWatched = {
   // Add asset to manifest
   addManifest (filePath) {
-    filePath = Mix.manifest.normalizePath(filePath)
-    const original = filePath.replace(/\?id=\w{20}/, '')
-    Mix.manifest.manifest[original] = filePath
+    let normalizedPath = Mix.manifest.normalizePath(filePath)
+    const original = normalizedPath.replace(/\?id=\w{20}/, '')
+    if (Mix.components.components.version != null) {
+      normalizedPath = original + '?id=' + new File(filePath).version()
+    }
+    Mix.manifest.manifest[original] = normalizedPath
   },
   // Remove asset from manifest
   removeManifest (filePath) {
-    filePath = Mix.manifest.normalizePath(filePath)
-    const original = filePath.replace(/\?id=\w{20}/, '')
+    const normalizedPath = Mix.manifest.normalizePath(filePath)
+    const original = normalizedPath.replace(/\?id=\w{20}/, '')
     delete Mix.manifest.manifest[original]
   },
   // Enable to trigger hook to rewrite mix-manifest.json in watching
