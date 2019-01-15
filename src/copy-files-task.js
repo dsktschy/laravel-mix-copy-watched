@@ -12,10 +12,9 @@ class CopyFilesTask extends Task {
     this.data.options.base = this.data.options.base.endsWith('/')
       ? this.data.options.base.slice(0, -1)
       : this.data.options.base
-    // Execute once
-    const paths = globby.sync(this.data.from)
     console.log('\n')
-    for (let fromRelative of paths) {
+    // Execute once
+    for (let fromRelative of globby.sync(this.data.from)) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
       this[stats.isFile() ? '_copyFile' : '_copyDir'](fromRelative)
@@ -65,15 +64,10 @@ class CopyFilesTask extends Task {
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
     console.log(`Copying ${fromRelative} to ${toRelative}`)
-    // When running, following process is not required
-    // because _copyFile is executed for all files
-    if (!this.isBeingWatched) return
-    const paths = globby.sync(`${fromRelative}/**/*`)
-    for (let _fromRelative of paths) {
-      const _fromAbsolute = path.resolve(_fromRelative)
-      const _stats = fs.statSync(_fromAbsolute)
+    for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
+      const _toAbsolute = path.resolve(_toRelative)
+      const _stats = fs.statSync(_toAbsolute)
       if (!_stats.isFile()) continue
-      const _toRelative = this._createDestinationFilePath(_fromRelative)
       Mix._copyWatched.addManifest(_toRelative)
       Mix._copyWatched.callManifestPluginEmitHook()
     }
@@ -83,13 +77,10 @@ class CopyFilesTask extends Task {
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
     console.log(`Removing ${toRelative}`)
-    if (!this.isBeingWatched) return
-    const paths = globby.sync(`${fromRelative}/**/*`)
-    for (let _fromRelative of paths) {
-      const _fromAbsolute = path.resolve(_fromRelative)
-      const _stats = fs.statSync(_fromAbsolute)
+    for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
+      const _toAbsolute = path.resolve(_toRelative)
+      const _stats = fs.statSync(_toAbsolute)
       if (!_stats.isFile()) continue
-      const _toRelative = this._createDestinationFilePath(_fromRelative)
       Mix._copyWatched.removeManifest(_toRelative)
       Mix._copyWatched.callManifestPluginEmitHook()
     }
