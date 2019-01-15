@@ -2,9 +2,9 @@
   "name": "laravel-mix-copy-watched",
   "version": "1.0.4",
   "description": "Laravel Mix extension to provide copy method that watches for changes, additions and deletions",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -23,11 +23,15 @@
   },
   "homepage": "https://github.com/dsktschy/laravel-mix-copy-watched#readme",
   "dependencies": {
-    "glob": "^7.1.3",
+    "chokidar": "^2.0.4",
     "fs-extra": "^7.0.1",
-    "chokidar": "^2.0.4"
+    "globby": "^8.0.1"
   },
   "peerDependencies": {
     "laravel-mix": "^4.0.12"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0",
+    "laravel-mix": "^4.0.13"
   }
 }
