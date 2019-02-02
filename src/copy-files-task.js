@@ -3,6 +3,24 @@ const path = require('path')
 const fs = require('fs-extra')
 const chokidar = require('chokidar')
 const Task = require('laravel-mix/src/tasks/Task')
+let Log
+try {
+  // laravel-mix@>=4.0.14
+  Log = require('laravel-mix/src/Log')
+} catch (e) {
+  // laravel-mix@<4.0.14
+  Log = {
+    colors: {
+      default: '\x1b[0m',
+      green: '\x1b[32m',
+      red: '\x1b[31m'
+    },
+    feedback (message, color = 'green') {
+      console.log(Log.colors[color], '\t' + message);
+      console.log(Log.colors['default'], '');
+    }
+  }
+}
 
 class CopyFilesTask extends Task {
   run () {
@@ -12,7 +30,6 @@ class CopyFilesTask extends Task {
     this.data.options.base = this.data.options.base.endsWith('/')
       ? this.data.options.base.slice(0, -1)
       : this.data.options.base
-    console.log('\n')
     // Avoid duplicated execution on watching
     if (this.data.noExecutionWhenRunning) return
     for (let fromRelative of globby.sync(this.data.from)) {
@@ -47,7 +64,7 @@ class CopyFilesTask extends Task {
     const toRelative = this._createDestinationFilePath(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
-    console.log(`Copying ${fromRelative} to ${toRelative}`)
+    Log.feedback(`Copying ${fromRelative} to ${toRelative}`)
     Mix._copyWatched.addManifest(toRelative)
     Mix._copyWatched.callManifestPluginEmitHook()
   }
@@ -55,7 +72,7 @@ class CopyFilesTask extends Task {
     const toRelative = this._createDestinationFilePath(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
-    console.log(`Removing ${toRelative}`)
+    Log.feedback(`Removing ${toRelative}`)
     Mix._copyWatched.removeManifest(toRelative)
     Mix._copyWatched.callManifestPluginEmitHook()
   }
@@ -64,7 +81,7 @@ class CopyFilesTask extends Task {
     const toRelative = this._createDestinationDirPath(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
-    console.log(`Copying ${fromRelative} to ${toRelative}`)
+    Log.feedback(`Copying ${fromRelative} to ${toRelative}`)
     for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
       const _toAbsolute = path.resolve(_toRelative)
       const _stats = fs.statSync(_toAbsolute)
@@ -77,7 +94,7 @@ class CopyFilesTask extends Task {
     const toRelative = this._createDestinationDirPath(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
-    console.log(`Removing ${toRelative}`)
+    Log.feedback(`Removing ${toRelative}`)
     for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
       const _toAbsolute = path.resolve(_toRelative)
       const _stats = fs.statSync(_toAbsolute)
