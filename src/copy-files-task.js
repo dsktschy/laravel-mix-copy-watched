@@ -13,7 +13,8 @@ class CopyFilesTask extends Task {
       ? this.data.options.base.slice(0, -1)
       : this.data.options.base
     console.log('\n')
-    // Execute once
+    // Avoid duplicated execution on watching
+    if (this.data.noExecutionWhenRunning) return
     for (let fromRelative of globby.sync(this.data.from)) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
