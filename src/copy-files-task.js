@@ -25,14 +25,17 @@ try {
 class CopyFilesTask extends Task {
   run () {
     this.data.options = Object.assign({
-      base: ''
+      base: '',
+      dot: false
     }, this.data.options)
     this.data.options.base = this.data.options.base.endsWith('/')
       ? this.data.options.base.slice(0, -1)
       : this.data.options.base
+    this.data.options.dot = !!this.data.options.dot
     // Avoid duplicated execution on watching
     if (this.data.noExecutionWhenRunning) return
-    for (let fromRelative of globby.sync(this.data.from)) {
+    const from = globby.sync(this.data.from, { dot: this.data.options.dot })
+    for (let fromRelative of from) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
       this[stats.isFile() ? '_copyFile' : '_copyDir'](fromRelative)
@@ -40,8 +43,10 @@ class CopyFilesTask extends Task {
   }
   watch (usePolling = false) {
     if (this.isBeingWatched) return
+    const options = { usePolling, persistent: true }
+    if (this.data.options.dot) options.ignored = /(^|[\/\\])\../
     const watcher = chokidar
-      .watch(this.data.from, { usePolling, persistent: true })
+      .watch(this.data.from, options)
       .on('change', this._copyFile.bind(this))
       .on('add', this._copyFile.bind(this))
       .on('addDir', this._copyDir.bind(this))
