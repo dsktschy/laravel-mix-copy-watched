@@ -110,7 +110,7 @@ class CopyFilesTask extends Task {
   }
   _createDestinationFilePath (from) {
     let to = ''
-    if (path.extname(from)) {
+    if (path.extname(from) || path.basename(from).startsWith('.')) {
       if (!this.data.to.endsWith('/') && path.extname(this.data.to)) {
         to = this.data.to
       } else {
@@ -139,7 +139,11 @@ class CopyFilesTask extends Task {
       popped = popped.startsWith('/') ? popped.slice(1) : popped
       to = path.join(this.data.to, popped)
     } else {
-      if (path.extname(fromSlashless) && !path.extname(toSlashless)) {
+      const f = fromSlashless
+      if (
+        (path.extname(f) || path.basename(f).startsWith('.')) &&
+        !path.extname(toSlashless)
+      ) {
         to = path.join(this.data.to, path.basename(from))
       } else {
         to = this.data.to
