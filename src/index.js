@@ -26,10 +26,7 @@ Mix._copyWatched = {
 
 class CopyWatched {
   register (from, to, options = {}) {
-    const noExecutionWhenRunning = Mix.isWatching()
-    Mix.addTask(new CopyFilesTask({
-      from, to, options, noExecutionWhenRunning
-    }))
+    Mix.addTask(new CopyFilesTask({ from, to, options }))
   }
   webpackPlugins () {
     return [
