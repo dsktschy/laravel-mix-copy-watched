@@ -34,8 +34,8 @@ class CopyFilesTask extends Task {
     this.data.options.dot = !!this.data.options.dot
     // Avoid duplicated execution on watching
     if (this.isBeingWatched) return
-    const fromRelativeList = globby.sync(this.data.from)
-    for (let fromRelative of fromRelativeList) {
+    const options = { onlyFiles: false }
+    for (let fromRelative of globby.sync(this.data.from, options)) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
       this[stats.isFile() ? '_copyFile' : '_copyDir'](fromRelative)
@@ -44,9 +44,8 @@ class CopyFilesTask extends Task {
   watch (usePolling = false) {
     if (this.isBeingWatched) return
     const options = { usePolling, persistent: true, ignoreInitial: true }
-    const fromRelativeList = globby.sync(this.data.from)
     const watcher = chokidar
-      .watch(fromRelativeList, options)
+      .watch(this.data.from, options)
       .on('change', this._copyFile.bind(this))
       .on('add', this._copyFile.bind(this))
       .on('addDir', this._copyDir.bind(this))
@@ -87,7 +86,7 @@ class CopyFilesTask extends Task {
     const fromDirAbsolute = path.resolve(fromDirRelative)
     const toDirAbsolute = path.resolve(toDirRelative)
     fs.copySync(fromDirAbsolute, toDirAbsolute)
-    const fromRelativeList = globby.sync(fromDirRelative)
+    const fromRelativeList = globby.sync(fromDirRelative, { onlyFiles: false })
     for (let fromRelative of fromRelativeList) {
       const fromAbsolute = path.resolve(fromRelative)
       if (!fs.statSync(fromAbsolute).isFile()) continue
@@ -99,7 +98,7 @@ class CopyFilesTask extends Task {
   _removeDir (fromDirRelative) {
     const toDirRelative = this._createDestinationDirPath(fromDirRelative)
     Log.feedback(`Removing ${toDirRelative}`)
-    const fromRelativeList = globby.sync(fromDirRelative)
+    const fromRelativeList = globby.sync(fromDirRelative, { onlyFiles: false })
     for (let fromRelative of fromRelativeList) {
       const fromAbsolute = path.resolve(fromRelative)
       if (!fs.statSync(fromAbsolute).isFile()) continue
