@@ -34,7 +34,7 @@ class CopyFilesTask extends Task {
     this.data.options.dot = !!this.data.options.dot
     // Avoid duplicated execution on watching
     if (this.isBeingWatched) return
-    const options = { onlyFiles: false }
+    const options = { onlyFiles: false, dot: this.data.options.dot }
     for (let fromRelative of globby.sync(this.data.from, options)) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
@@ -44,6 +44,7 @@ class CopyFilesTask extends Task {
   watch (usePolling = false) {
     if (this.isBeingWatched) return
     const options = { usePolling, persistent: true, ignoreInitial: true }
+    if (!this.data.options.dot) options.ignored = /(^|[\/\\])\../
     const watcher = chokidar
       .watch(this.data.from, options)
       .on('change', this._copyFile.bind(this))
