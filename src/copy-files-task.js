@@ -25,14 +25,17 @@ try {
 class CopyFilesTask extends Task {
   run () {
     this.data.options = Object.assign({
-      base: ''
+      base: '',
+      dot: false
     }, this.data.options)
     this.data.options.base = this.data.options.base.endsWith('/')
       ? this.data.options.base.slice(0, -1)
       : this.data.options.base
+    this.data.options.dot = !!this.data.options.dot
     // Avoid duplicated execution on watching
-    if (this.data.noExecutionWhenRunning) return
-    for (let fromRelative of globby.sync(this.data.from)) {
+    if (this.isBeingWatched) return
+    const options = { onlyFiles: false, dot: this.data.options.dot }
+    for (let fromRelative of globby.sync(this.data.from, options)) {
       const fromAbsolute = path.resolve(fromRelative)
       const stats = fs.statSync(fromAbsolute)
       this[stats.isFile() ? '_copyFile' : '_copyDir'](fromRelative)
@@ -40,8 +43,10 @@ class CopyFilesTask extends Task {
   }
   watch (usePolling = false) {
     if (this.isBeingWatched) return
+    const options = { usePolling, persistent: true, ignoreInitial: true }
+    if (!this.data.options.dot) options.ignored = /(^|[\/\\])\../
     const watcher = chokidar
-      .watch(this.data.from, { usePolling, persistent: true })
+      .watch(this.data.from, options)
       .on('change', this._copyFile.bind(this))
       .on('add', this._copyFile.bind(this))
       .on('addDir', this._copyDir.bind(this))
@@ -60,52 +65,54 @@ class CopyFilesTask extends Task {
     this.isBeingWatched = true
   }
   _copyFile (fromRelative) {
-    const fromAbsolute = path.resolve(fromRelative)
     const toRelative = this._createDestinationFilePath(fromRelative)
+    Log.feedback(`Copying ${fromRelative} to ${toRelative}`)
+    const fromAbsolute = path.resolve(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
-    Log.feedback(`Copying ${fromRelative} to ${toRelative}`)
     Mix._copyWatched.addManifest(toRelative)
     Mix._copyWatched.callManifestPluginEmitHook()
   }
   _removeFile (fromRelative) {
     const toRelative = this._createDestinationFilePath(fromRelative)
+    Log.feedback(`Removing ${toRelative}`)
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
-    Log.feedback(`Removing ${toRelative}`)
     Mix._copyWatched.removeManifest(toRelative)
     Mix._copyWatched.callManifestPluginEmitHook()
   }
-  _copyDir (fromRelative) {
-    const fromAbsolute = path.resolve(fromRelative)
-    const toRelative = this._createDestinationDirPath(fromRelative)
-    const toAbsolute = path.resolve(toRelative)
-    fs.copySync(fromAbsolute, toAbsolute)
-    Log.feedback(`Copying ${fromRelative} to ${toRelative}`)
-    for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
-      const _toAbsolute = path.resolve(_toRelative)
-      const _stats = fs.statSync(_toAbsolute)
-      if (!_stats.isFile()) continue
-      Mix._copyWatched.addManifest(_toRelative)
+  _copyDir (fromDirRelative) {
+    const toDirRelative = this._createDestinationDirPath(fromDirRelative)
+    Log.feedback(`Copying ${fromDirRelative} to ${toDirRelative}`)
+    const fromDirAbsolute = path.resolve(fromDirRelative)
+    const toDirAbsolute = path.resolve(toDirRelative)
+    fs.copySync(fromDirAbsolute, toDirAbsolute)
+    const fromRelativeList = globby.sync(fromDirRelative, { onlyFiles: false })
+    for (let fromRelative of fromRelativeList) {
+      const fromAbsolute = path.resolve(fromRelative)
+      if (!fs.statSync(fromAbsolute).isFile()) continue
+      const toRelative = this._createDestinationFilePath(fromRelative)
+      Mix._copyWatched.addManifest(toRelative)
       Mix._copyWatched.callManifestPluginEmitHook()
     }
   }
-  _removeDir (fromRelative) {
-    const toRelative = this._createDestinationDirPath(fromRelative)
-    const toAbsolute = path.resolve(toRelative)
-    fs.removeSync(toAbsolute)
-    Log.feedback(`Removing ${toRelative}`)
-    for (let _toRelative of globby.sync(`${toRelative}/**/*`)) {
-      const _toAbsolute = path.resolve(_toRelative)
-      const _stats = fs.statSync(_toAbsolute)
-      if (!_stats.isFile()) continue
-      Mix._copyWatched.removeManifest(_toRelative)
+  _removeDir (fromDirRelative) {
+    const toDirRelative = this._createDestinationDirPath(fromDirRelative)
+    Log.feedback(`Removing ${toDirRelative}`)
+    const fromRelativeList = globby.sync(fromDirRelative, { onlyFiles: false })
+    for (let fromRelative of fromRelativeList) {
+      const fromAbsolute = path.resolve(fromRelative)
+      if (!fs.statSync(fromAbsolute).isFile()) continue
+      const toRelative = this._createDestinationFilePath(fromRelative)
+      Mix._copyWatched.removeManifest(toRelative)
       Mix._copyWatched.callManifestPluginEmitHook()
     }
+    const toDirAbsolute = path.resolve(toDirRelative)
+    fs.removeSync(toDirAbsolute)
   }
   _createDestinationFilePath (from) {
     let to = ''
-    if (path.extname(from)) {
+    if (path.extname(from) || path.basename(from).startsWith('.')) {
       if (!this.data.to.endsWith('/') && path.extname(this.data.to)) {
         to = this.data.to
       } else {
@@ -134,7 +141,11 @@ class CopyFilesTask extends Task {
       popped = popped.startsWith('/') ? popped.slice(1) : popped
       to = path.join(this.data.to, popped)
     } else {
-      if (path.extname(fromSlashless) && !path.extname(toSlashless)) {
+      const f = fromSlashless
+      if (
+        (path.extname(f) || path.basename(f).startsWith('.')) &&
+        !path.extname(toSlashless)
+      ) {
         to = path.join(this.data.to, path.basename(from))
       } else {
         to = this.data.to
