@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/dsktschy/laravel-mix-copy-watched#readme",
   "dependencies": {
-    "chokidar": "^2.0.4",
+    "chokidar": "git+https://github.com/dsktschy/chokidar.git#include-dot-in-glob",
     "fs-extra": "^7.0.1",
     "globby": "^8.0.1"
   },
@@ -32,6 +32,6 @@
   },
   "devDependencies": {
     "jest": "^23.6.0",
-    "laravel-mix": "^4.0.13"
+    "laravel-mix": "^4.0.15"
   }
 }
