@@ -84,17 +84,21 @@ class CopyFilesTask extends Task {
   _copyDir (fromDirRelative) {
     const toDirRelative = this._createDestinationDirPath(fromDirRelative)
     Log.feedback(`Copying ${fromDirRelative} to ${toDirRelative}`)
-    const fromDirAbsolute = path.resolve(fromDirRelative)
     const toDirAbsolute = path.resolve(toDirRelative)
-    fs.copySync(fromDirAbsolute, toDirAbsolute)
+    fs.mkdirpSync(toDirAbsolute)
     const options = { onlyFiles: false, dot: this.data.options.dot }
     const fromRelativeList = globby.sync(fromDirRelative, options)
     for (let fromRelative of fromRelativeList) {
-      const fromAbsolute = path.resolve(fromRelative)
-      if (!fs.statSync(fromAbsolute).isFile()) continue
       const toRelative = this._createDestinationFilePath(fromRelative)
-      Mix._copyWatched.addManifest(toRelative)
-      Mix._copyWatched.callManifestPluginEmitHook()
+      const fromAbsolute = path.resolve(fromRelative)
+      const toAbsolute = path.resolve(toRelative)
+      if (fs.statSync(fromAbsolute).isDirectory()) {
+        fs.mkdirpSync(toAbsolute)
+      } else {
+        fs.copySync(fromAbsolute, toAbsolute)
+        Mix._copyWatched.addManifest(toRelative)
+        Mix._copyWatched.callManifestPluginEmitHook()
+      }
     }
   }
   _removeDir (fromDirRelative) {
@@ -104,7 +108,7 @@ class CopyFilesTask extends Task {
     const fromRelativeList = globby.sync(fromDirRelative, options)
     for (let fromRelative of fromRelativeList) {
       const fromAbsolute = path.resolve(fromRelative)
-      if (!fs.statSync(fromAbsolute).isFile()) continue
+      if (fs.statSync(fromAbsolute).isDirectory()) continue
       const toRelative = this._createDestinationFilePath(fromRelative)
       Mix._copyWatched.removeManifest(toRelative)
       Mix._copyWatched.callManifestPluginEmitHook()
