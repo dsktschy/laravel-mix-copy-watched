@@ -34,12 +34,22 @@ mix.copyWatched([path1, path2], to);
 mix.copyDirectoryWatched(fromDir, toDir);
 ```
 
-With the base option, it is also possible to keep a hierarchical structure (like Gulp).
+With the base option, it is possible to keep a hierarchical structure (like Gulp).
 
 ```js
 mix.copyWatched(
-    'resources/images/**/*',
+    'resources/images/**/*.{jpg,jpeg,png,gif}',
     'public/images',
     { base: 'resources/images' }
+);
+```
+
+With the dot option, it is possible to copy files and directories whose names start with dot.
+
+```js
+mix.copyWatched(
+    'resources/images',
+    'public/images',
+    { dot: true }
 );
 ```
