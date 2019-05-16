@@ -28,10 +28,14 @@
     "globby": "^8.0.1"
   },
   "peerDependencies": {
-    "laravel-mix": "^4.0.12"
+    "laravel-mix": "^4.0.15",
+    "ajv": "^6.9.1",
+    "acorn": "^6.0.0"
   },
   "devDependencies": {
     "jest": "^24.8.0",
-    "laravel-mix": "^4.0.15"
+    "laravel-mix": "^4.0.15",
+    "ajv": "^6.9.1",
+    "acorn": "^6.0.0"
   }
 }
