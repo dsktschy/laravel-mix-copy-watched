@@ -1,7 +1,7 @@
 const globby = require('globby')
 const path = require('path')
 const fs = require('fs-extra')
-const chokidar = require('chokidar')
+const chokidar = require('@dsktschy/chokidar')
 const Task = require('laravel-mix/src/tasks/Task')
 let Log
 try {
