@@ -52,16 +52,6 @@ class CopyFilesTask extends Task {
       .on('addDir', this._copyDir.bind(this))
       .on('unlink', this._removeFile.bind(this))
       .on('unlinkDir', this._removeDir.bind(this))
-    // Workaround for issue with atomic writes.
-    // See https://github.com/paulmillr/chokidar/issues/591
-    if (!usePolling) {
-      watcher.on('raw', event => {
-        if (event === 'rename') {
-          watcher.unwatch(this.data.from)
-          watcher.add(this.data.from)
-        }
-      })
-    }
     this.isBeingWatched = true
   }
   _copyFile (fromRelative) {
