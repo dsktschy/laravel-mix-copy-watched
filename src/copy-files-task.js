@@ -45,7 +45,7 @@ class CopyFilesTask extends Task {
     if (this.isBeingWatched) return
     const options = { usePolling, persistent: true, ignoreInitial: true }
     if (!this.data.options.dot) options.ignored = /(^|[\/\\])\../
-    const watcher = chokidar
+    chokidar
       .watch(this.data.from, options)
       .on('change', this._copyFile.bind(this))
       .on('add', this._copyFile.bind(this))
