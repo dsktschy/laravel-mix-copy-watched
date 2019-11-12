@@ -25,7 +25,7 @@ mix
 
 And you're done!
 
-The `copyWatched` and `copyDirectoryWatched` methods has the same usage as [the `copy` and `copyDirectory` methods](https://laravel-mix.com/docs/4.0/copying-files).
+The `copyWatched` and `copyDirectoryWatched` methods have the same usage as [the `copy` and `copyDirectory` methods](https://laravel-mix.com/docs/4.0/copying-files).
 
 ```js
 mix.copyWatched(from, to);
