@@ -1,2 +1,6 @@
+.github/
+node_modules/
+src/**/*.test.js
+.gitignore
+.npmignore
 package-lock.json
-**/*.test.js
