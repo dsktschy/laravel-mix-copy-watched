@@ -1,4 +1,5 @@
 const mix = require('laravel-mix')
+const File = require('laravel-mix/src/File')
 const CopyFilesTask = require('./copy-files-task')
 
 // Custom functions
