@@ -61,7 +61,6 @@ class CopyFilesTask extends Task {
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
     Mix._copyWatched.addManifest(toRelative)
-    Mix._copyWatched.callManifestPluginEmitHook()
   }
   _removeFile (fromRelative) {
     const toRelative = this._createDestinationFilePath(fromRelative)
@@ -69,7 +68,6 @@ class CopyFilesTask extends Task {
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
     Mix._copyWatched.removeManifest(toRelative)
-    Mix._copyWatched.callManifestPluginEmitHook()
   }
   _copyDir (fromDirRelative) {
     const toDirRelative = this._createDestinationDirPath(fromDirRelative)
@@ -87,7 +85,6 @@ class CopyFilesTask extends Task {
       } else {
         fs.copySync(fromAbsolute, toAbsolute)
         Mix._copyWatched.addManifest(toRelative)
-        Mix._copyWatched.callManifestPluginEmitHook()
       }
     }
   }
@@ -101,7 +98,6 @@ class CopyFilesTask extends Task {
       if (fs.statSync(fromAbsolute).isDirectory()) continue
       const toRelative = this._createDestinationFilePath(fromRelative)
       Mix._copyWatched.removeManifest(toRelative)
-      Mix._copyWatched.callManifestPluginEmitHook()
     }
     const toDirAbsolute = path.resolve(toDirRelative)
     fs.removeSync(toDirAbsolute)

@@ -1,6 +1,5 @@
 const mix = require('laravel-mix')
 const CopyFilesTask = require('./copy-files-task')
-const ManifestPlugin = require('./manifest-plugin')
 
 // Custom functions
 Mix._copyWatched = {
@@ -12,26 +11,20 @@ Mix._copyWatched = {
       normalizedPath = original + '?id=' + new File(filePath).version()
     }
     Mix.manifest.manifest[original] = normalizedPath
+    Mix.manifest.refresh()
   },
   // Remove asset from manifest
   removeManifest (filePath) {
     const normalizedPath = Mix.manifest.normalizePath(filePath)
     const original = normalizedPath.replace(/\?id=\w{20}/, '')
     delete Mix.manifest.manifest[original]
-  },
-  // Enable to trigger hook to rewrite mix-manifest.json in watching
-  // Defined in manifest-plugin.js
-  callManifestPluginEmitHook () {}
+    Mix.manifest.refresh()
+  }
 }
 
 class CopyWatched {
   register (from, to, options = {}) {
     Mix.addTask(new CopyFilesTask({ from, to, options }))
-  }
-  webpackPlugins () {
-    return [
-      new ManifestPlugin()
-    ]
   }
 }
 
