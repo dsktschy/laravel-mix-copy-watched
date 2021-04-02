@@ -1,4 +1,4 @@
-# Laravel Mix Copy Watched [![npm version](https://img.shields.io/npm/v/laravel-mix-copy-watched.svg?style=flat-square)](https://www.npmjs.com/package/laravel-mix-copy-watched)
+# Laravel Mix Copy Watched [![npm version](https://img.shields.io/npm/v/laravel-mix-copy-watched.svg?style=flat-square)](https://www.npmjs.com/package/laravel-mix-copy-watched) [![GitHub license](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](https://github.com/dsktschy/laravel-mix-copy-watched/blob/master/LICENSE.txt)
 
 This extension provides a copy method that can watch for not only changes but also additions and deletions.
 
