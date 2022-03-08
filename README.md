@@ -7,7 +7,7 @@ This extension provides a copy method that can watch for not only changes but al
 First, install the extension.
 
 ```
-npm install laravel-mix-copy-watched --save-dev
+npm install laravel-mix-copy-watched@next --save-dev
 ```
 
 Then, require it within your `webpack.mix.js` file, like so:
