@@ -28,7 +28,7 @@
     "globby": "^11.0.4"
   },
   "peerDependencies": {
-    "laravel-mix": ">=4.0.0"
+    "laravel-mix": ">=6.0.0"
   },
   "devDependencies": {
     "acorn": "^6.0.0",
