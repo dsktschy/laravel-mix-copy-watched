@@ -1,4 +1,5 @@
 .github/
+.node-version
 node_modules/
 src/**/*.test.js
 .gitignore
