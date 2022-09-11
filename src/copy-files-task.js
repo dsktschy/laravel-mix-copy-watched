@@ -4,24 +4,7 @@ const fs = require('fs-extra')
 const chokidar = require('chokidar')
 const File = require('laravel-mix/src/File')
 const Task = require('laravel-mix/src/tasks/Task')
-let Log
-try {
-  // laravel-mix@>=4.0.14
-  Log = require('laravel-mix/src/Log')
-} catch (e) {
-  // laravel-mix@<4.0.14
-  Log = {
-    colors: {
-      default: '\x1b[0m',
-      green: '\x1b[32m',
-      red: '\x1b[31m'
-    },
-    feedback (message, color = 'green') {
-      console.log(Log.colors[color], '\t' + message);
-      console.log(Log.colors['default'], '');
-    }
-  }
-}
+const Log = require('laravel-mix/src/Log')
 
 class CopyFilesTask extends Task {
   run () {
