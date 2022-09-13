@@ -1,33 +1,35 @@
 const mix = require('laravel-mix')
-const File = require('laravel-mix/src/File')
+const { Component } = require('laravel-mix/src/components/Component')
 const CopyFilesTask = require('./copy-files-task')
 
-// Custom functions
-Mix._copyWatched = {
-  // Add asset to manifest
-  addManifest (filePath) {
-    let normalizedPath = Mix.manifest.normalizePath(filePath)
-    const original = normalizedPath.replace(/\?id=\w{20}/, '')
-    if (Mix.components.components.version != null) {
-      normalizedPath = original + '?id=' + new File(filePath).version()
+class CopyWatched extends Component {
+  addToManifest (filePath) {
+    const normalizedPath = this.context.manifest.normalizePath(filePath)
+    const original = normalizedPath.replace(/\?id=\w+/, '');
+    this.context.manifest.manifest[original] = normalizedPath
+    if (this.context.components.get('version') && !this.context.isUsing('hmr')) {
+      this.context.manifest.hash(original)
     }
-    Mix.manifest.manifest[original] = normalizedPath
-    Mix.manifest.refresh()
-  },
-  // Remove asset from manifest
-  removeManifest (filePath) {
-    const normalizedPath = Mix.manifest.normalizePath(filePath)
-    const original = normalizedPath.replace(/\?id=\w{20}/, '')
-    delete Mix.manifest.manifest[original]
-    Mix.manifest.refresh()
+    this.context.manifest.refresh()
   }
-}
 
-class CopyWatched {
+  removeFromManifest (filePath) {
+    const normalizedPath = this.context.manifest.normalizePath(filePath)
+    const original = normalizedPath.replace(/\?id=\w+/, '');
+    delete this.context.manifest.manifest[original]
+    this.context.manifest.refresh()
+  }
+
   register (from, to, options = {}) {
-    Mix.addTask(new CopyFilesTask({ from, to, options }))
+    this.context.addTask(new CopyFilesTask({
+      from,
+      to,
+      options,
+      addToManifest: this.addToManifest.bind(this),
+      removeFromManifest: this.removeFromManifest.bind(this)
+    }))
   }
 }
 
-mix.extend('copyWatched', new CopyWatched())
-mix.extend('copyDirectoryWatched', new CopyWatched())
+mix.extend('copyWatched', CopyWatched)
+mix.extend('copyDirectoryWatched', CopyWatched)

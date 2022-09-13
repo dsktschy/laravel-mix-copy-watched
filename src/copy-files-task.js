@@ -2,25 +2,9 @@ const globby = require('globby')
 const path = require('path')
 const fs = require('fs-extra')
 const chokidar = require('chokidar')
+const File = require('laravel-mix/src/File')
 const Task = require('laravel-mix/src/tasks/Task')
-let Log
-try {
-  // laravel-mix@>=4.0.14
-  Log = require('laravel-mix/src/Log')
-} catch (e) {
-  // laravel-mix@<4.0.14
-  Log = {
-    colors: {
-      default: '\x1b[0m',
-      green: '\x1b[32m',
-      red: '\x1b[31m'
-    },
-    feedback (message, color = 'green') {
-      console.log(Log.colors[color], '\t' + message);
-      console.log(Log.colors['default'], '');
-    }
-  }
-}
+const Log = require('laravel-mix/src/Log')
 
 class CopyFilesTask extends Task {
   run () {
@@ -60,14 +44,16 @@ class CopyFilesTask extends Task {
     const fromAbsolute = path.resolve(fromRelative)
     const toAbsolute = path.resolve(toRelative)
     fs.copySync(fromAbsolute, toAbsolute)
-    Mix._copyWatched.addManifest(toRelative)
+    this.assets.push(new File(toAbsolute))
+    this.data.addToManifest(toRelative)
   }
   _removeFile (fromRelative) {
     const toRelative = this._createDestinationFilePath(fromRelative)
     Log.feedback(`Removing ${toRelative}`)
     const toAbsolute = path.resolve(toRelative)
     fs.removeSync(toAbsolute)
-    Mix._copyWatched.removeManifest(toRelative)
+    this.assets = this.assets.filter(asset => asset.absolutePath !== toAbsolute)
+    this.data.removeFromManifest(toRelative)
   }
   _copyDir (fromDirRelative) {
     const toDirRelative = this._createDestinationDirPath(fromDirRelative)
@@ -84,7 +70,8 @@ class CopyFilesTask extends Task {
         fs.mkdirpSync(toAbsolute)
       } else {
         fs.copySync(fromAbsolute, toAbsolute)
-        Mix._copyWatched.addManifest(toRelative)
+        this.assets.push(new File(toAbsolute))
+        this.data.addToManifest(toRelative)
       }
     }
   }
@@ -97,7 +84,9 @@ class CopyFilesTask extends Task {
       const fromAbsolute = path.resolve(fromRelative)
       if (fs.statSync(fromAbsolute).isDirectory()) continue
       const toRelative = this._createDestinationFilePath(fromRelative)
-      Mix._copyWatched.removeManifest(toRelative)
+      const toAbsolute = path.resolve(toRelative)
+      this.assets = this.assets.filter(asset => asset.absolutePath !== toAbsolute)
+      this.data.removeFromManifest(toRelative)
     }
     const toDirAbsolute = path.resolve(toDirRelative)
     fs.removeSync(toDirAbsolute)
