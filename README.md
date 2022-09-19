@@ -19,14 +19,15 @@ $ npm install --save-dev laravel-mix-copy-watched@2
 ## Usage
 
 ```js
-let mix = require('laravel-mix');
+const mix = require('laravel-mix')
 
-require('laravel-mix-copy-watched');
+require('laravel-mix-copy-watched')
 
-mix
-  .js('resources/js/app.js', 'public/js')
-  .sass('resources/sass/app.scss', 'public/css')
-  .copyWatched('resources/images/app.png', 'public/images');
+mix.copyWatched(
+  'src/images',
+  'dist/images',
+  { base: 'src/images' }
+)
 ```
 
 ## API
@@ -42,10 +43,10 @@ Type: `string | string[]`
 Paths or glob patterns to files and directories to be copied.
 
 ```js
-mix.copyWatched('from.png', 'to');
-mix.copyWatched('from/**/*.txt', 'to');
-mix.copyWatched('from/**/*.{jpg,jpeg,png,gif}', 'to');
-mix.copyWatched(['from1.jpg', 'from2.webp'], 'to');
+mix.copyWatched('from.png', 'to')
+mix.copyWatched('from/**/*.txt', 'to', { base: 'from' })
+mix.copyWatched('from/**/*.{jpg,jpeg,png,gif}', 'to', { base: 'from' })
+mix.copyWatched(['from1.jpg', 'from2.webp'], 'to')
 ```
 
 #### to
@@ -68,18 +69,18 @@ Default: `''`
 When a path to a directory is set, the directory will be copied with the hierarchical structure kept.
 
 ```js
-// resources/images/foo.png -> public/foo.png
+// src/images/foo.png -> dist/foo.png
 mix.copyWatched(
-  'resources/**/*',
-  'public'
-);
+  'src',
+  'dist'
+)
 
-// resources/images/foo.png -> public/images/foo.png
+// src/images/foo.png -> dist/images/foo.png
 mix.copyWatched(
-  'resources/**/*',
-  'public',
-  { base: 'resources' }
-);
+  'src',
+  'dist',
+  { base: 'src' }
+)
 ```
 
 ##### dot
@@ -90,18 +91,22 @@ Default: `false`
 If set to `true`, files and directories whose names start with a dot will be copied.
 
 ```js
-// resources/.foorc -> No output
+// src/.foorc -> No output
 mix.copyWatched(
-  'resources',
-  'public',
-);
+  'src',
+  'dist',
+  { base: 'src' }
+)
 
-// resources/.foorc -> public/.foorc
+// src/.foorc -> dist/.foorc
 mix.copyWatched(
-  'resources',
-  'public',
-  { dot: true }
-);
+  'src',
+  'dist',
+  {
+    base: 'src',
+    dot: true
+  }
+)
 ```
 
 ### copyDirectoryWatched(from, to, options)
